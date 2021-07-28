@@ -76,4 +76,7 @@ class Losses:
         self.losses_arguments = losses_arguments
 
     def __call__(self, inputs, targets):
-        return torch.sum([loss_func(inputs, targets, **self.losses_arguments) for loss_func in self.losses])
+        loss = 0.
+        for loss_func in self.losses:
+            loss += loss_func(inputs, targets, **self.losses_arguments)
+        return loss

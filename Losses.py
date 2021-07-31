@@ -50,7 +50,7 @@ def cal_negative_logistic_loss(inputs, targets, reduction="sum", **kwargs):
     return loss
 
 
-def cal_triplet_loss(inputs, targets, distance_function=None, margin=0.0, reduction="sum", **kwargs):
+def cal_triplet_loss(inputs, targets=None, distance_function=None, margin=0.0, reduction="sum", **kwargs):
     anchors, positives, negatives = inputs
     return TripletMarginWithDistanceLoss(distance_function=distance_function, 
                                          margin=margin, 
@@ -75,7 +75,7 @@ class Losses:
         self.losses = [self.name2loss[name] for name in losses]
         self.losses_arguments = losses_arguments
 
-    def __call__(self, inputs, targets):
+    def __call__(self, inputs, targets=None):
         loss = 0.
         for loss_func in self.losses:
             loss += loss_func(inputs, targets, **self.losses_arguments)

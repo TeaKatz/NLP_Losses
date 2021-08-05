@@ -1,9 +1,9 @@
 # NLP_Losses
 A repository gathers losses for training models.
-- [MAELoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#maeloss)
-- [MSELoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#mseloss)
-- [HuberLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#huberloss)
-- [CategoricalCrossEntropyLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#categoricalcrossentropyloss)
+- [MAELoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#MAELoss)
+- [MSELoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#MSELoss)
+- [HuberLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#HuberLoss)
+- [CategoricalCrossEntropyLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#CategoricalCrossEntropyLoss)
 - [BinaryCrossEntropyLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#BinaryCrossEntropyLoss)
 - [CosineLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#CosineLoss)
 - [LogisticLoss](https://github.com/TeaKatz/NLP_Losses/tree/main/src/nlp_losses#LogisticLoss)

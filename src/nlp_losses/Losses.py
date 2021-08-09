@@ -31,8 +31,13 @@ def cal_cosine_loss(inputs, targets, margin=0.0, reduction="sum", **kwargs):
 
 
 def cal_logistic_loss(inputs, targets, reduction="sum", **kwargs):
+    """
+    inputs: (batch_size, vector_size)
+    targets: (batch_size, vector_size)
+    """
+    # (batch_size, )
     scalar_product = torch.matmul(inputs, targets.transpose(0, 1)).diagonal()
-    loss = torch.log(1 - torch.exp(-scalar_product))
+    loss = torch.log(1 + torch.exp(-scalar_product))
     if reduction == "mean":
         loss = torch.mean(loss)
     elif reduction == "sum":
@@ -41,13 +46,33 @@ def cal_logistic_loss(inputs, targets, reduction="sum", **kwargs):
 
 
 def cal_negative_logistic_loss(inputs, targets, reduction="sum", **kwargs):
+    """
+    inputs: (batch_size, vector_size)
+    targets: (batch_size, vector_size)
+    """
+    # (batch_size, )
     scalar_product = torch.matmul(inputs, targets.transpose(0, 1)).diagonal()
-    loss = torch.log(1 - torch.exp(scalar_product))
+    loss = torch.log(1 + torch.exp(scalar_product))
     if reduction == "mean":
         loss = torch.mean(loss)
     elif reduction == "sum":
         loss = torch.sum(loss)
     return loss
+
+
+def cal_fasttext_loss(anchors, positives, negatives, reduction="sum", **kwargs):
+    """
+    anchors: (batch_size, vector_size)
+    positives: (batch_size, vector_size)
+    negatives: (batch_size, negative_size, vector_size)
+    """
+    _, negative_size, _ = negatives.shape
+
+    pos_loss = cal_logistic_loss(anchors, positives, reduction=reduction)
+    neg_loss = 0.0
+    for i in range(negative_size):
+        neg_loss += cal_negative_logistic_loss(anchors, negatives[:, i], reduction=reduction)
+    return pos_loss + neg_loss
 
 
 def cal_triplet_loss(anchors, positives, negatives, distance_function=None, margin=0.0, reduction="sum", **kwargs):
@@ -66,6 +91,7 @@ class Losses:
         "CosineLoss": cal_cosine_loss,
         "LogisticLoss": cal_logistic_loss,
         "NegativeLogisticLoss": cal_negative_logistic_loss,
+        "FastTextLoss": cal_fasttext_loss,
         "TripletLoss": cal_triplet_loss
     }
     def __init__(self, losses , **losses_arguments):

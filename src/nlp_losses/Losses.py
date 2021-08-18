@@ -20,8 +20,24 @@ def cal_categorical_crossentropy_loss(inputs, targets, reduction="sum", ignore_i
                             ignore_index=ignore_index)(inputs, targets)
 
 
-def cal_binary_crossentropy_loss(inputs, targets, reduction="sum", **kwargs):
-    return BCEWithLogitsLoss(reduction=reduction)(inputs, targets)
+def cal_binary_crossentropy_loss(inputs, targets, reduction="sum", ignore_index=None, **kwargs):
+    """
+    inputs: (batch_size, class_size)
+    targets: (batch_size, class_size)
+    """
+    mask = torch.ones_like(inputs)
+    if ignore_index is not None:
+        assert ignore_index >= 0, "ignore_index cannot < 0"
+        mask[:, ignore_index] = 0.
+
+    # (batch_size, class_size)
+    loss = BCEWithLogitsLoss(reduction="none")(inputs, targets)
+    loss = loss * mask
+    if reduction == "sum":
+        loss = torch.sum(loss)
+    elif reduction == "mean":
+        loss = torch.mean(loss)
+    return loss
 
 
 def cal_cosine_loss(inputs, targets, margin=0.0, reduction="sum", **kwargs):

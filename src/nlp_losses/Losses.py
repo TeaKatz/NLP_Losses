@@ -3,24 +3,24 @@ import torch
 from torch.nn import L1Loss, MSELoss, HuberLoss, CrossEntropyLoss, BCEWithLogitsLoss, CosineEmbeddingLoss, TripletMarginWithDistanceLoss
 
 
-def cal_mae_loss(inputs, targets, reduction="sum", **kwargs):
+def cal_mae_loss(inputs, targets, reduction="mean", **kwargs):
     return L1Loss(reduction=reduction)(inputs, targets)
 
 
-def cal_mse_loss(inputs, targets, reduction="sum", **kwargs):
+def cal_mse_loss(inputs, targets, reduction="mean", **kwargs):
     return MSELoss(reduction=reduction)(inputs, targets)
 
 
-def cal_huber_loss(inputs, targets, reduction="sum", **kwargs):
+def cal_huber_loss(inputs, targets, reduction="mean", **kwargs):
     return HuberLoss(reduction=reduction)(inputs, targets)
 
 
-def cal_categorical_crossentropy_loss(inputs, targets, reduction="sum", ignore_index=-100, **kwargs):
+def cal_categorical_crossentropy_loss(inputs, targets, reduction="mean", ignore_index=-100, **kwargs):
     return CrossEntropyLoss(reduction=reduction, 
                             ignore_index=ignore_index)(inputs, targets)
 
 
-def cal_binary_crossentropy_loss(inputs, targets, reduction="sum", ignore_index=None, **kwargs):
+def cal_binary_crossentropy_loss(inputs, targets, reduction="mean", ignore_index=None, **kwargs):
     """
     inputs: (batch_size, class_size)
     targets: (batch_size, class_size)
@@ -40,13 +40,13 @@ def cal_binary_crossentropy_loss(inputs, targets, reduction="sum", ignore_index=
     return loss
 
 
-def cal_cosine_loss(inputs, targets, margin=0.0, reduction="sum", **kwargs):
+def cal_cosine_loss(inputs, targets, margin=0.0, reduction="mean", **kwargs):
     input1, input2 = inputs
     return CosineEmbeddingLoss(margin=margin, 
                                reduction=reduction)(input1, input2, targets)
 
 
-def cal_logistic_loss(inputs, targets, reduction="sum", **kwargs):
+def cal_logistic_loss(inputs, targets, reduction="mean", **kwargs):
     """
     inputs: (batch_size, vector_size)
     targets: (batch_size, vector_size)
@@ -61,7 +61,7 @@ def cal_logistic_loss(inputs, targets, reduction="sum", **kwargs):
     return loss
 
 
-def cal_negative_logistic_loss(inputs, targets, reduction="sum", **kwargs):
+def cal_negative_logistic_loss(inputs, targets, reduction="mean", **kwargs):
     """
     inputs: (batch_size, vector_size)
     targets: (batch_size, vector_size)
@@ -76,7 +76,7 @@ def cal_negative_logistic_loss(inputs, targets, reduction="sum", **kwargs):
     return loss
 
 
-def cal_fasttext_loss(anchors, positives, negatives, reduction="sum", **kwargs):
+def cal_fasttext_loss(anchors, positives, negatives, reduction="mean", **kwargs):
     """
     anchors: (batch_size, vector_size)
     positives: (batch_size, vector_size)
@@ -91,7 +91,7 @@ def cal_fasttext_loss(anchors, positives, negatives, reduction="sum", **kwargs):
     return pos_loss + neg_loss
 
 
-def cal_triplet_loss(anchors, positives, negatives, distance_function=None, margin=0.0, reduction="sum", **kwargs):
+def cal_triplet_loss(anchors, positives, negatives, distance_function=None, margin=0.0, reduction="mean", **kwargs):
     return TripletMarginWithDistanceLoss(distance_function=distance_function, 
                                          margin=margin, 
                                          reduction=reduction)(anchors, positives, negatives)

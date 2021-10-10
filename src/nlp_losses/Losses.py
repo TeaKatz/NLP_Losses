@@ -1,6 +1,7 @@
 import torch
 
-from torch.nn import L1Loss, MSELoss, HuberLoss, CrossEntropyLoss, BCEWithLogitsLoss, CosineEmbeddingLoss, TripletMarginWithDistanceLoss
+from torch.nn.functional import cosine_similarity
+from torch.nn import L1Loss, MSELoss, HuberLoss, CrossEntropyLoss, BCEWithLogitsLoss, TripletMarginWithDistanceLoss
 
 
 def cal_mae_loss(inputs, targets, reduction="mean", **kwargs):
@@ -40,10 +41,19 @@ def cal_binary_crossentropy_loss(inputs, targets, reduction="mean", ignore_index
     return loss
 
 
-def cal_cosine_loss(inputs, targets, margin=0.0, reduction="mean", **kwargs):
-    input1, input2 = inputs
-    return CosineEmbeddingLoss(margin=margin, 
-                               reduction=reduction)(input1, input2, targets)
+def cal_cosine_similarity_loss(input1, input2, targets, margin=0.0, reduction="mean", **kwargs):
+    """
+    input1: (batch_size, vector_size)
+    input2: (batch_size, vector_size)
+    targets: (batch_size, )
+    """
+
+    loss = torch.maximum(0, torch.abs(cosine_similarity(input1, input2) - targets) - margin)
+    if reduction == "sum":
+        loss = torch.sum(loss)
+    elif reduction == "mean":
+        loss = torch.mean(loss)
+    return loss
 
 
 def cal_logistic_loss(inputs, targets, reduction="mean", **kwargs):
@@ -104,7 +114,7 @@ class Losses:
         "HuberLoss": cal_huber_loss,
         "CategoricalCrossEntropyLoss": cal_categorical_crossentropy_loss,
         "BinaryCrossEntropyLoss": cal_binary_crossentropy_loss,
-        "CosineLoss": cal_cosine_loss,
+        "CosineSimilarityLoss": cal_cosine_similarity_loss,
         "LogisticLoss": cal_logistic_loss,
         "NegativeLogisticLoss": cal_negative_logistic_loss,
         "FastTextLoss": cal_fasttext_loss,

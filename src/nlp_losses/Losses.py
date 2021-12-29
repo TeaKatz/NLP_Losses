@@ -4,35 +4,51 @@ from torch.nn.functional import cosine_similarity
 from torch.nn import L1Loss, MSELoss, HuberLoss, CrossEntropyLoss, BCEWithLogitsLoss, TripletMarginWithDistanceLoss
 
 
-def cal_mae_loss(inputs, targets, reduction="mean", **kwargs):
-    return L1Loss(reduction=reduction)(inputs, targets)
-
-
-def cal_mse_loss(inputs, targets, reduction="mean", **kwargs):
-    return MSELoss(reduction=reduction)(inputs, targets)
-
-
-def cal_huber_loss(inputs, targets, reduction="mean", **kwargs):
-    return HuberLoss(reduction=reduction)(inputs, targets)
-
-
-def cal_categorical_crossentropy_loss(inputs, targets, reduction="mean", ignore_index=-100, **kwargs):
-    return CrossEntropyLoss(reduction=reduction, 
-                            ignore_index=ignore_index)(inputs, targets)
-
-
-def cal_binary_crossentropy_loss(inputs, targets, reduction="mean", ignore_index=None, **kwargs):
+def cal_mae_loss(preds, targets, reduction="mean", **kwargs):
     """
-    inputs: (batch_size, class_size)
+    preds: (batch_size, )
+    targets: (batch_size, )
+    """
+    return L1Loss(reduction=reduction)(preds, targets)
+
+
+def cal_mse_loss(preds, targets, reduction="mean", **kwargs):
+    """
+    preds: (batch_size, )
+    targets: (batch_size, )
+    """
+    return MSELoss(reduction=reduction)(preds, targets)
+
+
+def cal_huber_loss(preds, targets, reduction="mean", **kwargs):
+    """
+    preds: (batch_size, )
+    targets: (batch_size, )
+    """
+    return HuberLoss(reduction=reduction)(preds, targets)
+
+
+def cal_categorical_crossentropy_loss(preds, targets, reduction="mean", ignore_index=-100, **kwargs):
+    """
+    preds: (batch_size, class_size)
+    targets: (batch_size, )
+    """
+    return CrossEntropyLoss(reduction=reduction, 
+                            ignore_index=ignore_index)(preds, targets)
+
+
+def cal_binary_crossentropy_loss(preds, targets, reduction="mean", ignore_index=None, **kwargs):
+    """
+    preds: (batch_size, class_size)
     targets: (batch_size, class_size)
     """
-    mask = torch.ones_like(inputs)
+    mask = torch.ones_like(preds)
     if ignore_index is not None:
         assert ignore_index >= 0, "ignore_index cannot < 0"
         mask[:, ignore_index] = 0.
 
     # (batch_size, class_size)
-    loss = BCEWithLogitsLoss(reduction="none")(inputs, targets)
+    loss = BCEWithLogitsLoss(reduction="none")(preds, targets)
     loss = loss * mask
     if reduction == "sum":
         loss = torch.sum(loss)
@@ -41,14 +57,14 @@ def cal_binary_crossentropy_loss(inputs, targets, reduction="mean", ignore_index
     return loss
 
 
-def cal_cosine_similarity_loss(input1, input2, targets, margin=0.0, reduction="mean", **kwargs):
+def cal_cosine_similarity_loss(preds1, preds2, targets, margin=0.0, reduction="mean", **kwargs):
     """
-    input1: (batch_size, vector_size)
-    input2: (batch_size, vector_size)
+    preds1: (batch_size, vector_size)
+    preds2: (batch_size, vector_size)
     targets: (batch_size, )
     """
 
-    loss = torch.maximum(0, torch.abs(cosine_similarity(input1, input2) - targets) - margin)
+    loss = torch.maximum(0, torch.abs(cosine_similarity(preds1, preds2) - targets) - margin)
     if reduction == "sum":
         loss = torch.sum(loss)
     elif reduction == "mean":
@@ -56,13 +72,13 @@ def cal_cosine_similarity_loss(input1, input2, targets, margin=0.0, reduction="m
     return loss
 
 
-def cal_logistic_loss(inputs, targets, reduction="mean", **kwargs):
+def cal_logistic_loss(preds, targets, reduction="mean", **kwargs):
     """
-    inputs: (batch_size, vector_size)
+    preds: (batch_size, vector_size)
     targets: (batch_size, vector_size)
     """
     # (batch_size, )
-    scalar_product = torch.matmul(inputs, targets.transpose(0, 1)).diagonal()
+    scalar_product = torch.matmul(preds, targets.transpose(0, 1)).diagonal()
     loss = torch.log(1 + torch.exp(-scalar_product))
     if reduction == "mean":
         loss = torch.mean(loss)
@@ -71,13 +87,13 @@ def cal_logistic_loss(inputs, targets, reduction="mean", **kwargs):
     return loss
 
 
-def cal_negative_logistic_loss(inputs, targets, reduction="mean", **kwargs):
+def cal_negative_logistic_loss(preds, targets, reduction="mean", **kwargs):
     """
-    inputs: (batch_size, vector_size)
+    preds: (batch_size, vector_size)
     targets: (batch_size, vector_size)
     """
     # (batch_size, )
-    scalar_product = torch.matmul(inputs, targets.transpose(0, 1)).diagonal()
+    scalar_product = torch.matmul(preds, targets.transpose(0, 1)).diagonal()
     loss = torch.log(1 + torch.exp(scalar_product))
     if reduction == "mean":
         loss = torch.mean(loss)
